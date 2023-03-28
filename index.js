@@ -1,10 +1,10 @@
-import json from "./config.json" assert { type: "json" }
 import { Client, GatewayIntentBits, } from "discord.js"
+import dotenv from "dotenv"
+dotenv.config();
+
 import connect from "./function/connection.js";
 import { getVoiceConnection,createAudioPlayer } from "@discordjs/voice";
 import yomiage from "./function/yomiage.js"
-
-const token =json.token 
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
@@ -49,7 +49,6 @@ client.on("interactionCreate", async (interaction) => {
     }
 });
 
-
 client.on('error', console.warn);
 
-client.login(token);
+client.login(process.env.TOKEN);
