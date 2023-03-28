@@ -1,4 +1,4 @@
-import {joinVoiceChannel, createAudioPlayer, createAudioResource,NoSubscriberBehavior,StreamType,getVoiceConnection} from "@discordjs/voice"
+import {joinVoiceChannel, createAudioPlayer,getVoiceConnection, VoiceConnectionStatus,} from "@discordjs/voice"
 import yomiage from "./yomiage.js"
 
 export default async function connect(interaction,client){
@@ -23,7 +23,7 @@ export default async function connect(interaction,client){
     const voice_channel_id = member_vc.id;
     const guild_id = guild.id;
 
-    const connectionvc = joinVoiceChannel({
+    const connection = joinVoiceChannel({
         guildId: guild_id,
         channelId: voice_channel_id,
         adapterCreator: guild.voiceAdapterCreator,
@@ -32,16 +32,16 @@ export default async function connect(interaction,client){
     });
 
     const player = createAudioPlayer();
-    connectionvc.subscribe(player);
+    connection.subscribe(player);
     const vcinteraction = interaction
 
     await interaction.reply({content: "接続しました"})
 
-    client.on('messageCreate', async msg => {
+    const func = async msg => {
         if (msg.guild == interaction.guildId && msg.channelId == interaction.channelId){
             try {
                 if(getVoiceConnection(interaction.guildId)=== undefined){
-    
+                    return
                 }else{
                     yomiage(msg,player)  
                 }
@@ -49,5 +49,17 @@ export default async function connect(interaction,client){
                 console.log(e);
             }
         }
+    }
+
+    client.on('messageCreate', func);
+
+    connection.once(VoiceConnectionStatus.Disconnected, ()=>{
+        client.off('messageCreate', func);
+        console.log("disconnected")
+    });
+
+    connection.once(VoiceConnectionStatus.Destroyed, ()=>{
+        client.off('messageCreate', func);
+        console.log("destroyed")
     });
 }

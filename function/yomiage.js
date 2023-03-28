@@ -1,6 +1,6 @@
 import axios from "axios";
 import fs from "fs";
-import { joinVoiceChannel, createAudioPlayer, createAudioResource,NoSubscriberBehavior,StreamType } from "@discordjs/voice";
+import { createAudioResource } from "@discordjs/voice";
 
 export default async function yomiage(msg,player){
     console.log(msg.content)

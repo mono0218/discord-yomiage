@@ -43,7 +43,7 @@ client.on("interactionCreate", async (interaction) => {
         if(connection === undefined){
             interaction.reply('vcに接続していません');
         }else{
-            connection.destroy();
+            connection.disconnect();
             interaction.reply('bye');
         }
     }
