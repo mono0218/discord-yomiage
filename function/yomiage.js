@@ -19,6 +19,7 @@ export default async function yomiage(msg,player){
     });
     console.log("合成しました")
     let resource = createAudioResource(synthesis.data, { inputType: StreamType.Arbitrary, inlineVolume: true });
+    console.log(synthesis.data)
     console.log("リソースを作成しました")
     player.on('error', error => {
         console.error('Error:', error.message, );
