@@ -1,10 +1,12 @@
 import axios from "axios";
 import fs from "fs";
 import { createAudioResource } from "@discordjs/voice";
+import dotenv from "dotenv"
+dotenv.config();
 
 export default async function yomiage(msg,player){
     console.log(msg.content)
-    const rpc = axios.create({ baseURL: "http://0.0.0.0:50021", proxy: false });
+    const rpc = axios.create({ baseURL: process.env.URL, proxy: false });
 
     const audio_query = await rpc.post('audio_query?text=' + encodeURI(msg.content) + '&speaker=1');
     const synthesis = await rpc.post("synthesis?speaker=1", JSON.stringify(audio_query.data), {
