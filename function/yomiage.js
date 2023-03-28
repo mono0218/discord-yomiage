@@ -10,14 +10,13 @@ export default async function yomiage(msg,player){
 
     const audio_query = await rpc.post('audio_query?text=' + encodeURI(msg.content) + '&speaker=1');
     const synthesis = await rpc.post("synthesis?speaker=1", JSON.stringify(audio_query.data), {
-        responseType: 'arraybuffer',
+        responseType: 'stream',
         headers: {
             "accept": "audio/wav",
             "Content-Type": "application/json"
         }
     });
-
-    let resource = createAudioResource(Buffer.from(synthesis.data), { inputType: StreamType.Arbitrary, inlineVolume: true });
+    let resource = createAudioResource(synthesis.data, { inputType: StreamType.Arbitrary, inlineVolume: true });
     player.on('error', error => {
         console.error('Error:', error.message, );
     });
