@@ -1,6 +1,6 @@
 import axios from "axios";
 import fs from "fs";
-import { createAudioResource } from "@discordjs/voice";
+import { createAudioResource,StreamType } from "@discordjs/voice";
 import dotenv from "dotenv"
 dotenv.config();
 
@@ -17,9 +17,7 @@ export default async function yomiage(msg,player){
         }
     });
 
-    fs.writeFileSync("voice/test.wav", new Buffer.from(synthesis.data), 'binary');
-
-    let resource = createAudioResource("voice/test.wav");
+    let resource = createAudioResource(Buffer.from(synthesis.data), { inputType: StreamType.Arbitrary, inlineVolume: true });
     player.on('error', error => {
         console.error('Error:', error.message, );
     });
