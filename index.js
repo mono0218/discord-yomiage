@@ -1,14 +1,18 @@
 const {token} = require("./config.json")
-const { Client, GatewayIntentBits } = require('discord.js');
-const { joinVoiceChannel, createAudioPlayer, createAudioResource,NoSubscriberBehavior } = require('@discordjs/voice');
+const { createReadStream } = require('node:fs');
+const { join } = require('node:path');
+const { Client, GatewayIntentBits,Discord } = require('discord.js');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource,NoSubscriberBehavior,StreamType  } = require('@discordjs/voice');
 const { default: axios } = require("axios");
 const fs = require("fs");
+const ffmpeg = require ('fluent-ffmpeg');
 
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers,] });
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.GuildVoiceStates,] });
 
 client.once('ready', async() => {
     const data = [{
@@ -19,7 +23,7 @@ client.once('ready', async() => {
         name:"bye",
         description:"ボイスチャットから切断します",
     }];
-    await client.application.commands.set(data, '1089544171435597878');
+    await client.application.commands.set(data, '911457453475004438');
 
     console.log(`Logged in as ${client.user.tag}!`);
 });
@@ -67,24 +71,34 @@ async function connect(interaction){
         selfMute: false,
         selfDeaf: true,
     });
-
-    const player = createAudioPlayer({
-        behaviors: {
-            noSubscriber: NoSubscriberBehavior.Pause,
-        },
-    });
+    const player = createAudioPlayer();
+    connection.subscribe(player);
 
     await interaction.reply({content: "接続しました"})
 
     client.on('messageCreate', async msg => {
-        if (msg.guild == "1089544171435597878" && msg.channelId == "1089545060418330704"){
+
+        if (msg.guild == "911457453475004438" && msg.channelId == "926779332024733697"){
             try {
                 console.log(msg.content)
-                genAudio(msg.content,"voice/test.wav")
 
-                const resource = createAudioResource('voice/test.wav');
+                const audio_query = await rpc.post('audio_query?text=' + encodeURI(msg.content) + '&speaker=1');
+                const synthesis = await rpc.post("synthesis?speaker=1", JSON.stringify(audio_query.data), {
+                    responseType: 'arraybuffer',
+                    headers: {
+                        "accept": "audio/wav",
+                        "Content-Type": "application/json"
+                    }
+                });
+
+                fs.writeFileSync("voice/test.wav", new Buffer.from(synthesis.data), 'binary');
+
+                let resource = createAudioResource(join(__dirname, "voice/test.wav"));
+                player.on('error', error => {
+                    console.error('Error:', error.message, );
+                });
                 player.play(resource);
-    
+
             } catch(e) {
                 console.log(e);
             }
@@ -101,7 +115,7 @@ async function genAudio(text, filepath) {
     const synthesis = await rpc.post("synthesis?speaker=1", JSON.stringify(audio_query.data), {
         responseType: 'arraybuffer',
         headers: {
-            "accept": "audio/wav",
+            "accept": "audio/ogg",
             "Content-Type": "application/json"
         }
     });
