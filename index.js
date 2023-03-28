@@ -1,12 +1,10 @@
-const {token} = require("./config.json")
-const { createReadStream } = require('node:fs');
-const { join } = require('node:path');
-const { Client, GatewayIntentBits,Discord } = require('discord.js');
-const { joinVoiceChannel, createAudioPlayer, createAudioResource,NoSubscriberBehavior,StreamType  } = require('@discordjs/voice');
-const { default: axios } = require("axios");
-const fs = require("fs");
-const ffmpeg = require ('fluent-ffmpeg');
+import json from "./config.json" assert { type: "json" }
+import { Client, GatewayIntentBits, } from "discord.js"
+import connect from "./function/connection.js";
+import { getVoiceConnection,createAudioPlayer } from "@discordjs/voice";
+import yomiage from "./function/yomiage.js"
 
+const token =json.token 
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
@@ -37,91 +35,20 @@ client.on("interactionCreate", async (interaction) => {
     }
 
     if(interaction.commandName === 'join'){
-        connect(interaction);
+        connect(interaction,client)
+    }
+    
+    if(interaction.commandName === 'bye'){
+        const connection = getVoiceConnection(interaction.guildId);
+        if(connection === undefined){
+            interaction.reply('vcに接続していません');
+        }else{
+            connection.destroy();
+            interaction.reply('bye');
+        }
     }
 });
 
-
-async function connect(interaction){
-    const guild = interaction.guild;
-    const member = await guild.members.fetch(interaction.member.id)
-    const member_vc = member.voice.channel
-
-    if(!member_vc){
-        await interaction.reply({content: "接続先のチャンネルが見つかりません"})
-        return
-    }
-
-    if(!member_vc.joinable){
-        await interaction.reply({content: "vcに接続できませんでした"})
-        return
-    }
-    if(!member_vc.speakable){
-        await interaction.reply({content:"権限がありません"})
-        return
-    }
-
-    const voice_channel_id = member_vc.id;
-    const guild_id = guild.id;
-
-    const connection = joinVoiceChannel({
-        guildId: guild_id,
-        channelId: voice_channel_id,
-        adapterCreator: guild.voiceAdapterCreator,
-        selfMute: false,
-        selfDeaf: true,
-    });
-    const player = createAudioPlayer();
-    connection.subscribe(player);
-
-    await interaction.reply({content: "接続しました"})
-
-    client.on('messageCreate', async msg => {
-
-        if (msg.guild == "911457453475004438" && msg.channelId == "926779332024733697"){
-            try {
-                console.log(msg.content)
-
-                const audio_query = await rpc.post('audio_query?text=' + encodeURI(msg.content) + '&speaker=1');
-                const synthesis = await rpc.post("synthesis?speaker=1", JSON.stringify(audio_query.data), {
-                    responseType: 'arraybuffer',
-                    headers: {
-                        "accept": "audio/wav",
-                        "Content-Type": "application/json"
-                    }
-                });
-
-                fs.writeFileSync("voice/test.wav", new Buffer.from(synthesis.data), 'binary');
-
-                let resource = createAudioResource(join(__dirname, "voice/test.wav"));
-                player.on('error', error => {
-                    console.error('Error:', error.message, );
-                });
-                player.play(resource);
-
-            } catch(e) {
-                console.log(e);
-            }
-        }
-    });
-}
-
-const rpc = axios.create({ baseURL: "http://0.0.0.0:50021", proxy: false });
-
-async function genAudio(text, filepath) {
-
-    const audio_query = await rpc.post('audio_query?text=' + encodeURI(text) + '&speaker=1');
-
-    const synthesis = await rpc.post("synthesis?speaker=1", JSON.stringify(audio_query.data), {
-        responseType: 'arraybuffer',
-        headers: {
-            "accept": "audio/ogg",
-            "Content-Type": "application/json"
-        }
-    });
-
-    fs.writeFileSync(filepath, new Buffer.from(synthesis.data), 'binary');
-}
 
 client.on('error', console.warn);
 
