@@ -55,11 +55,10 @@ export default async function connect(interaction,client){
 
     connection.once(VoiceConnectionStatus.Disconnected, ()=>{
         client.off('messageCreate', func);
-        console.log("disconnected")
     });
 
     connection.once(VoiceConnectionStatus.Destroyed, ()=>{
         client.off('messageCreate', func);
-        console.log("destroyed")
     });
+
 }

@@ -21,7 +21,7 @@ client.once('ready', async() => {
         name:"bye",
         description:"ボイスチャットから切断します",
     }];
-    await client.application.commands.set(data, '911457453475004438');
+    await client.application.commands.set(data, '1089544171435597878');
 
     console.log(`Logged in as ${client.user.tag}!`);
 });
@@ -36,6 +36,7 @@ client.on("interactionCreate", async (interaction) => {
 
     if(interaction.commandName === 'join'){
         connect(interaction,client)
+        console.log(interaction.guildId+"のVCに入室しました。")
     }
     
     if(interaction.commandName === 'bye'){
@@ -44,6 +45,7 @@ client.on("interactionCreate", async (interaction) => {
             interaction.reply('vcに接続していません');
         }else{
             connection.disconnect();
+            console.log(interaction.guildId+"のVCから退出しました")
             interaction.reply('bye');
         }
     }

@@ -14,7 +14,6 @@
     "opusscript": "^0.0.8",
     "tweetnacl": "^1.0.3"
   },
-  
   "engines": {
     "node": "19.7.0"
   }
