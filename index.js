@@ -21,7 +21,7 @@ client.once('ready', async() => {
         name:"bye",
         description:"ボイスチャットから切断します",
     }];
-    await client.application.commands.set(data, '1089544171435597878');
+    await client.application.commands.set(data, process.env.GuildID);
 
     console.log(`Logged in as ${client.user.tag}!`);
 });
