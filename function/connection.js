@@ -1,7 +1,11 @@
 import {joinVoiceChannel, createAudioPlayer,getVoiceConnection, VoiceConnectionStatus,} from "@discordjs/voice"
-import yomiage from "./yomiage.js"
+import voicevox_yomiage from "./yomiage.js"
+import azure_yomiage from "./yomiage.js"
 
 export default async function connect(interaction,client){
+
+    let locked = false
+
     const guild = interaction.guild;
     const member = await guild.members.fetch(interaction.member.id)
     const member_vc = member.voice.channel
@@ -38,12 +42,13 @@ export default async function connect(interaction,client){
     await interaction.reply({content: "接続しました"})
 
     const func = async msg => {
+        if(msg.author.bot){return}
         if (msg.guild == interaction.guildId && msg.channelId == interaction.channelId){
             try {
                 if(getVoiceConnection(interaction.guildId)=== undefined){
                     return
                 }else{
-                    yomiage(msg,player)  
+                    await azure_yomiage(msg,player)
                 }
             } catch(e) {
                 console.log(e);
@@ -51,7 +56,12 @@ export default async function connect(interaction,client){
         }
     }
 
+    const func2 = async msg =>{
+        console.error(`Error: ${error.message} with resource ${error.resource.metadata.title}`);
+    }
+
     client.on('messageCreate', func);
+    player.on('error', func2);
 
     connection.once(VoiceConnectionStatus.Disconnected, ()=>{
         client.off('messageCreate', func);
@@ -60,5 +70,15 @@ export default async function connect(interaction,client){
     connection.once(VoiceConnectionStatus.Destroyed, ()=>{
         client.off('messageCreate', func);
     });
+
+    connection.once(VoiceConnectionStatus.Destroyed, ()=>{
+        player.off('error', func2);
+    });
+
+    connection.once(VoiceConnectionStatus.Disconnected, ()=>{
+        player.off('error', func2);
+    });
+
+    
 
 }
