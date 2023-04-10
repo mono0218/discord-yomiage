@@ -1,5 +1,5 @@
 import {joinVoiceChannel, createAudioPlayer,getVoiceConnection, VoiceConnectionStatus,} from "@discordjs/voice"
-import yomiage from "./yomiage.js"
+import azure_yomiage from "./yomiage.js"
 
 export default async function connect(interaction,client){
     const guild = interaction.guild;
@@ -43,7 +43,7 @@ export default async function connect(interaction,client){
                 if(getVoiceConnection(interaction.guildId)=== undefined){
                     return
                 }else{
-                    yomiage(msg,player)  
+                    azure_yomiage(msg,player)  
                 }
             } catch(e) {
                 console.log(e);
