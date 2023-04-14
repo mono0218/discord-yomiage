@@ -3,9 +3,9 @@ import axios from 'axios';
 import SpeechSDK from 'microsoft-cognitiveservices-speech-sdk';
 import { PassThrough } from 'stream';
 export async function voicevox_yomiage(msg, player) {
-    msg = msg.trim();
-    if (msg.startsWith('http')) {
-        msg = "URL";
+    var result = msg.content.indexOf('http');
+    if(result !== -1){
+        msg.content = "URL"
     }
     const stream = await speakTextUsingVoicevox(msg);
     let resource = createAudioResource(stream, { inputType: StreamType.Arbitrary, inlineVolume: true });
@@ -39,8 +39,17 @@ export async function speakTextUsingVoicevox(msg) {
     });
     return synthesis.data;
 }
+
 export async function azure_yomiage(msg, player) {
-    const stream = await speakTextUsingAzure(msg);
+    
+    if(msg.content.indexOf('http') != -1){
+        msg.content = "URL"
+    }
+
+    if (msg.content.indexOf('.') != -1) {
+        return
+    }
+    const stream = await speakTextUsingAzure(msg.content);
     let resource = createAudioResource(stream, { inputType: StreamType.Arbitrary, inlineVolume: true });
     await waitUntilPlayFinish(player);
     player.play(resource);

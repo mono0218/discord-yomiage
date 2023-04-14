@@ -13,15 +13,22 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildVoiceStates,] });
 
 client.once('ready', async() => {
-    const data = [{
+    const ping = {
         name: "ping",
         description: "pongと返信します。",
+    }
+    const join = {
         name:"join",
         description: "ボイスチャットに接続します",
+    }
+
+    const bye = {
         name:"bye",
         description:"ボイスチャットから切断します",
-    }];
-    await client.application.commands.set(data, process.env.GuildID);
+    }
+
+    const commands = [ping,join,bye]
+    await client.application.commands.set(commands, process.env.GuildID);
 
     console.log(`Logged in as ${client.user.tag}!`);
 });
