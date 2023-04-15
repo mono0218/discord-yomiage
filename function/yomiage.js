@@ -43,7 +43,7 @@ export async function speakTextUsingVoicevox(msg) {
 export async function azure_yomiage(msg, player) {
     
     if(msg.indexOf('http') != -1){
-        msg.content = "URL"
+        msg = "URL"
     }
 
     if (msg.indexOf('.') != -1) {

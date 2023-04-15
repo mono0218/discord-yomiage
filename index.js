@@ -7,6 +7,8 @@ import { getVoiceConnection,createAudioPlayer } from "@discordjs/voice";
 import yomiage from "./function/yomiage.js"
 import gpt from "./function/chatGPT.js";
 
+const player = createAudioPlayer();
+
 const client = new Client({ intents: [GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
@@ -41,7 +43,12 @@ client.once('ready', async() => {
           ]
     };
 
-    const commands = [ping,join,bye,gpt]
+    const skip ={
+        name:"skip",
+        description:"スキップします"    
+    }
+
+    const commands = [ping,join,bye,gpt,skip]
     await client.application.commands.set(commands, process.env.GuildID);
 
     console.log(`Logged in as ${client.user.tag}!`);
@@ -56,7 +63,7 @@ client.on("interactionCreate", async (interaction) => {
     }
 
     if(interaction.commandName === 'join'){
-        connect(interaction,client)
+        connect(interaction,client,player)
         console.log(interaction.guildId+"のVCに入室しました。")
     }
     
@@ -75,6 +82,11 @@ client.on("interactionCreate", async (interaction) => {
         const content = interaction.options.getString('content')
         await gpt(content)
         await interaction.reply("生成しました")
+    }
+
+    if(interaction.commandName === 'skip'){
+        player.stop();
+        await interaction.reply("スキップしました")
     }
 });
 
