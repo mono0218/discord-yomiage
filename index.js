@@ -5,6 +5,7 @@ dotenv.config();
 import connect from "./function/connection.js";
 import { getVoiceConnection,createAudioPlayer } from "@discordjs/voice";
 import yomiage from "./function/yomiage.js"
+import gpt from "./function/chatGPT.js";
 
 const client = new Client({ intents: [GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
@@ -27,7 +28,20 @@ client.once('ready', async() => {
         description:"ボイスチャットから切断します",
     }
 
-    const commands = [ping,join,bye]
+    const gpt = {
+        name:"gpt",
+        description:"感情を持つbotちゃん",
+        options: [
+            {
+              type: 3,
+              name: "content",
+              description: "会話を始めよう",
+              required: true,
+            }
+          ]
+    };
+
+    const commands = [ping,join,bye,gpt]
     await client.application.commands.set(commands, process.env.GuildID);
 
     console.log(`Logged in as ${client.user.tag}!`);
@@ -55,6 +69,12 @@ client.on("interactionCreate", async (interaction) => {
             console.log(interaction.guildId+"のVCから退出しました")
             interaction.reply('bye');
         }
+    }
+
+    if(interaction.commandName === 'gpt'){
+        const content = interaction.options.getString('content')
+        await gpt(content)
+        await interaction.reply("生成しました")
     }
 });
 

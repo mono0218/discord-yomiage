@@ -43,7 +43,7 @@ export default async function connect(interaction,client){
                 if(getVoiceConnection(interaction.guildId)=== undefined){
                     return
                 }else{
-                    azure_yomiage(msg,player)  
+                    azure_yomiage(msg.content,player)  
                 }
             } catch(e) {
                 console.log(e);
@@ -60,5 +60,4 @@ export default async function connect(interaction,client){
     connection.once(VoiceConnectionStatus.Destroyed, ()=>{
         client.off('messageCreate', func);
     });
-
 }

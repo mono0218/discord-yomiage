@@ -42,18 +42,19 @@ export async function speakTextUsingVoicevox(msg) {
 
 export async function azure_yomiage(msg, player) {
     
-    if(msg.content.indexOf('http') != -1){
+    if(msg.indexOf('http') != -1){
         msg.content = "URL"
     }
 
-    if (msg.content.indexOf('.') != -1) {
+    if (msg.indexOf('.') != -1) {
         return
     }
-    const stream = await speakTextUsingAzure(msg.content);
+    const stream = await speakTextUsingAzure(msg);
     let resource = createAudioResource(stream, { inputType: StreamType.Arbitrary, inlineVolume: true });
     await waitUntilPlayFinish(player);
     player.play(resource);
 }
+
 export async function speakTextUsingAzure(msg) {
     const keyText = process.env.AZURE_API;
     const regionText = "japaneast";
@@ -72,6 +73,7 @@ export async function speakTextUsingAzure(msg) {
     }
     return new PassThrough().end(Buffer.from(result.audioData));
 }
+
 async function waitUntilPlayFinish(player) {
     return new Promise((resolve, _) => {
         if (player.state.status == AudioPlayerStatus.Idle) {
