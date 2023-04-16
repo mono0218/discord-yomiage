@@ -9,7 +9,7 @@ import { PassThrough } from 'stream';
  * @returns player
  */
 export async function voicevox_yomiage(msg, player) {
-    msg = msg_text()
+    msg = msg_text(msg)
     const stream = await speakTextUsingVoicevox(msg);
     AudioPlay(stream,player)
 }
@@ -20,7 +20,7 @@ export async function voicevox_yomiage(msg, player) {
  * @returns player
  */
 export async function azure_yomiage(msg, player) {
-    msg = msg_text()
+    msg = msg_text(msg)
     const stream = await speakTextUsingAzure(msg);
     AudioPlay(stream,player)
 }
@@ -61,7 +61,7 @@ async function speakTextUsingVoicevox(msg) {
  * 
  * @returns msg
  */
-async function msg_text(){
+async function msg_text(msg){
     if(msg.indexOf('http') != -1){
         msg = "URL"
     }

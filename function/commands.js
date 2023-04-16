@@ -1,5 +1,5 @@
-import gpt from "./function/chatGPT.js";
-import connect from "./function/connection.js";
+import gpt from "./chatGPT.js";
+import connect from "./connection.js";
 import { getVoiceConnection} from "@discordjs/voice";
 
 /**
@@ -49,7 +49,7 @@ export function commands(){
  * @params interaction
  * @params player 
  */
-export async function CommandReply(interaction,player){
+export async function CommandReply(interaction,player,client){
     if (!interaction.isCommand()) {
         return;
     }
