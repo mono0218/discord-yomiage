@@ -20,9 +20,9 @@ export async function voicevox_yomiage(msg, player) {
  * @returns player
  */
 export async function azure_yomiage(msg, player) {
-    msg = msg_text(msg)
+    msg = await msg_text(msg)
     const stream = await speakTextUsingAzure(msg);
-    AudioPlay(stream,player)
+    await AudioPlay(stream,player)
 }
 
 /**
@@ -92,7 +92,7 @@ async function AzureSettings(){
  * @returns AudioData
  */
 async function speakTextUsingAzure(msg) {
-    const synthesizer = new SpeechSDK.SpeechSynthesizer(AzureSettings);
+    const synthesizer = new SpeechSDK.SpeechSynthesizer(await AzureSettings());
     let result;
     try {
         result = await new Promise((resolve, reject) => {
@@ -129,7 +129,6 @@ async function AudioPlay(stream,player){
     let resource = createAudioResource(stream, { inputType: StreamType.Arbitrary, inlineVolume: true });
     await waitUntilPlayFinish(player);
     player.play(resource);
-    console.log("再生しました");
 }
 
 export default azure_yomiage;
