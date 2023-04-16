@@ -9,9 +9,9 @@ import { PassThrough } from 'stream';
  * @returns player
  */
 export async function voicevox_yomiage(msg, player) {
-    msg = msg_text(msg)
+    msg = await msg_text(msg)
     const stream = await speakTextUsingVoicevox(msg);
-    AudioPlay(stream,player)
+    await AudioPlay(stream,player)
 }
 
 /**
@@ -96,6 +96,7 @@ async function speakTextUsingAzure(msg) {
     let result;
     try {
         result = await new Promise((resolve, reject) => {
+            console.log("[ " + msg + " ]" + "===> AZURE API");
             synthesizer.speakTextAsync(msg, resolve, reject);
         });
     }
