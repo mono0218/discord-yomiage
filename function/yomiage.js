@@ -2,19 +2,35 @@ import { AudioPlayerStatus, createAudioResource, StreamType } from "@discordjs/v
 import axios from 'axios';
 import SpeechSDK from 'microsoft-cognitiveservices-speech-sdk';
 import { PassThrough } from 'stream';
+
+/**
+ * voicevoxの読み上げ
+ * @params msg
+ * @returns player
+ */
 export async function voicevox_yomiage(msg, player) {
-    var result = msg.content.indexOf('http');
-    if(result !== -1){
-        msg.content = "URL"
-    }
+    msg = msg_text()
     const stream = await speakTextUsingVoicevox(msg);
-    let resource = createAudioResource(stream, { inputType: StreamType.Arbitrary, inlineVolume: true });
-    await waitUntilPlayFinish(player);
-    player.play(resource);
-    console.log("再生しました");
+    AudioPlay(stream,player)
 }
 
-export async function speakTextUsingVoicevox(msg) {
+/**
+ * azureの読み上げ
+ * @params msg
+ * @returns player
+ */
+export async function azure_yomiage(msg, player) {
+    msg = msg_text()
+    const stream = await speakTextUsingAzure(msg);
+    AudioPlay(stream,player)
+}
+
+/**
+ * voicevoxを使ったオーディオデータ取得
+ * @params String
+ * @returns AudioData
+ */
+async function speakTextUsingVoicevox(msg) {
     const rpc = axios.create({ baseURL: process.env.URL, proxy: false });
     const audio_query = await rpc.post('audio_query', {}, {
         params: {
@@ -40,28 +56,43 @@ export async function speakTextUsingVoicevox(msg) {
     return synthesis.data;
 }
 
-export async function azure_yomiage(msg, player) {
-    
+/**
+ * 文字列の修正
+ * 
+ * @returns msg
+ */
+async function msg_text(){
     if(msg.indexOf('http') != -1){
         msg = "URL"
     }
 
     if (msg.indexOf('.') != -1) {
-        return
+        msg=""
     }
-    const stream = await speakTextUsingAzure(msg);
-    let resource = createAudioResource(stream, { inputType: StreamType.Arbitrary, inlineVolume: true });
-    await waitUntilPlayFinish(player);
-    player.play(resource);
+    return msg
 }
 
-export async function speakTextUsingAzure(msg) {
+/**
+ * azureの読み上げ設定を取得
+ * 
+ * @returns speechConfig
+ */
+async function AzureSettings(){
     const keyText = process.env.AZURE_API;
     const regionText = "japaneast";
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(keyText, regionText);
     speechConfig.speechSynthesisLanguage = "ja-JP";
-    speechConfig.speechSynthesisVoiceName = "ja-JP-NanamiNeural";
-    const synthesizer = new SpeechSDK.SpeechSynthesizer(speechConfig);
+    speechConfig.speechSynthesisVoiceName = "ja-JP-AoiNeural";
+    return speechConfig
+}
+
+/**
+ * azureの読み上げオーディオデータ取得
+ * @params String
+ * @returns AudioData
+ */
+async function speakTextUsingAzure(msg) {
+    const synthesizer = new SpeechSDK.SpeechSynthesizer(AzureSettings);
     let result;
     try {
         result = await new Promise((resolve, reject) => {
@@ -74,6 +105,9 @@ export async function speakTextUsingAzure(msg) {
     return new PassThrough().end(Buffer.from(result.audioData));
 }
 
+/**
+ * 読み上げが終わるまで待機する
+ */
 async function waitUntilPlayFinish(player) {
     return new Promise((resolve, _) => {
         if (player.state.status == AudioPlayerStatus.Idle) {
@@ -84,4 +118,18 @@ async function waitUntilPlayFinish(player) {
         });
     });
 }
+
+/**
+ * 音声データの再生
+ * @params stream
+ * @params player
+ * 
+ */
+async function AudioPlay(stream,player){
+    let resource = createAudioResource(stream, { inputType: StreamType.Arbitrary, inlineVolume: true });
+    await waitUntilPlayFinish(player);
+    player.play(resource);
+    console.log("再生しました");
+}
+
 export default azure_yomiage;

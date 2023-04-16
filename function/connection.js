@@ -1,6 +1,12 @@
-import {joinVoiceChannel, createAudioPlayer,getVoiceConnection, VoiceConnectionStatus,} from "@discordjs/voice"
+import {joinVoiceChannel,getVoiceConnection, VoiceConnectionStatus,} from "@discordjs/voice"
 import azure_yomiage from "./yomiage.js"
 
+/**
+ * VCに接続
+ * @params interacion
+ * @params client
+ * @params player
+ */
 export default async function connect(interaction,client,player){
     const guild = interaction.guild;
     const member = await guild.members.fetch(interaction.member.id)
@@ -30,8 +36,8 @@ export default async function connect(interaction,client,player){
         selfMute: false,
         selfDeaf: true,
     });
+
     connection.subscribe(player);
-    const vcinteraction = interaction
 
     await interaction.reply({content: "接続しました"})
 
