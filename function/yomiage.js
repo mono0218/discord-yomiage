@@ -62,6 +62,11 @@ async function speakTextUsingVoicevox(msg) {
  * @returns msg
  */
 async function msg_text(msg){
+    if(msg.indexOf('<') != -1){
+        console.log(msg)
+        msg = msg.replace(/[0-9０-９]/g, ' ').replace('<',' ').replace(':',' ').replace('>',' ')
+    }
+
     if(msg.indexOf('http') != -1){
         msg = "URL"
     }
