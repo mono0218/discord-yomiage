@@ -1,8 +1,7 @@
 import connect from "./connection.js";
 import azure_yomiage from "./yomiage.js"
 import { getVoiceConnection} from "@discordjs/voice";
-import { createAudioPlayer } from "@discordjs/voice";
-
+import {player,client} from "../index.js"
 import {spam,spam_stop}from "./spam.js"
 
 /**
@@ -62,17 +61,7 @@ export function commands(){
         description:"スキップします"    
     }
 
-    const spam ={
-        name:"spam",
-        description:"うるせえよ"    
-    }
-
-    const spam_stop ={
-        name:"spam-stop",
-        description:"静かにできてえらい"    
-    }
-
-    const commands = [ping,join,bye,voice,skip,chat,spam,spam_stop]
+    const commands = [ping,join,bye,voice,skip,chat,]
 
     return commands
 }
@@ -82,7 +71,7 @@ export function commands(){
  * @params interaction
  * @params player 
  */
-export async function CommandReply(interaction,player,client){
+export async function CommandReply(interaction){
 
     if (!interaction.isCommand()) {
         return;
@@ -111,7 +100,7 @@ export async function CommandReply(interaction,player,client){
         const interactionUser = await interaction.guild.members.fetch(interaction.user.id)
         if (interactionUser._roles.lastIndexOf(1097085437954240643) != -1){
             const content = interaction.options.getString('content')
-            await azure_yomiage(content,player)
+            await azure_yomiage(content)
             await interaction.reply({ content: '受け付けました', ephemeral: true })
         }else{
             await interaction.reply({ content: 'このコマンドは指定されたユーザーのみが使用できます', ephemeral: true })
@@ -123,29 +112,9 @@ export async function CommandReply(interaction,player,client){
         if (interactionUser._roles.lastIndexOf(1097085437954240643) != -1){
             const content = interaction.options.getString('content')
             const channel = interaction.options.get('channel')
-            console.log(interactionUser.user.username+"が"+channel.channel.name+"に"+content+"を送信しました");
+            console.log(interactionUser.user.username+"が「"+channel.channel.name+"」に「"+content+"」を送信しました");
             await client.channels.cache.get(channel.channel.id).send(content);
             await interaction.reply({ content: '受け付けました', ephemeral: true })
-        }else{
-            await interaction.reply({ content: 'このコマンドは指定されたユーザーのみが使用できます', ephemeral: true })
-        }
-    }
-
-    if(interaction.commandName === 'spam'){
-        const interactionUser = await interaction.guild.members.fetch(interaction.user.id)
-        if (interactionUser._roles.lastIndexOf("1098869939823186000") != -1){
-            await spam()
-            await interaction.reply("有効にしました")
-        }else{
-            await interaction.reply({ content: 'このコマンドは指定されたユーザーのみが使用できます', ephemeral: true })
-        }
-    }
-
-    if(interaction.commandName === 'spam-stop'){
-        const interactionUser = await interaction.guild.members.fetch(interaction.user.id)
-        if (interactionUser._roles.lastIndexOf("1098869939823186000") != -1){
-            await spam_stop()
-            await interaction.reply("無効にしました")
         }else{
             await interaction.reply({ content: 'このコマンドは指定されたユーザーのみが使用できます', ephemeral: true })
         }
