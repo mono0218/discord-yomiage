@@ -4,6 +4,8 @@ import { getVoiceConnection} from "@discordjs/voice";
 import {player,client} from "../index.js"
 import {spam,spam_stop}from "./spam.js"
 
+let lockflag = 0
+
 /**
  * slashコマンド一覧入手
  * @returns commands
@@ -81,8 +83,13 @@ export async function CommandReply(interaction){
     }
 
     if(interaction.commandName === 'join'){
-        connect(interaction,client,player)
-        console.log(interaction.guildId+"のVCに入室しました。")
+
+        if(lockflag === true){
+            interaction.reply('すでに接続しています');
+        }else{
+            connect(interaction,client,player)
+            lockflag = true
+        }
     }
     
     if(interaction.commandName === 'bye'){
@@ -92,13 +99,14 @@ export async function CommandReply(interaction){
         }else{
             connection.disconnect();
             console.log(interaction.guildId+"のVCから退出しました")
+            lockflag = false
             interaction.reply('bye');
         }
     }
 
     if(interaction.commandName === 'voice'){
         const interactionUser = await interaction.guild.members.fetch(interaction.user.id)
-        if (interactionUser._roles.lastIndexOf(1097085437954240643) != -1){
+        if (interactionUser._roles.lastIndexOf('1097085437954240643') != -1){
             const content = interaction.options.getString('content')
             await azure_yomiage(content)
             await interaction.reply({ content: '受け付けました', ephemeral: true })
@@ -109,7 +117,7 @@ export async function CommandReply(interaction){
 
     if(interaction.commandName === 'chat'){
         const interactionUser = await interaction.guild.members.fetch(interaction.user.id)
-        if (interactionUser._roles.lastIndexOf(1097085437954240643) != -1){
+        if (interactionUser._roles.lastIndexOf('1097085437954240643')!= -1){
             const content = interaction.options.getString('content')
             const channel = interaction.options.get('channel')
             console.log(interactionUser.user.username+"が「"+channel.channel.name+"」に「"+content+"」を送信しました");

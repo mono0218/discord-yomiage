@@ -18,7 +18,7 @@ client.once('ready', async() => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
-client.on("interactionCreate", async (interaction) => {
+client.on(Event.interactionCreate, async (interaction) => {
     CommandReply(interaction)
 });
 

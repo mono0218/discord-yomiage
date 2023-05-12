@@ -22,6 +22,7 @@ export default async function connect(interaction){
         await interaction.reply({content: "vcに接続できませんでした"})
         return
     }
+
     if(!member_vc.speakable){
         await interaction.reply({content:"権限がありません"})
         return
@@ -41,6 +42,8 @@ export default async function connect(interaction){
     connection.subscribe(player);
 
     await interaction.reply({content: "接続しました"})
+    
+    console.log(interaction.guildId+"のVCに入室しました。")
 
     const func = async msg => {
         if (msg.guild == interaction.guildId && msg.channelId == interaction.channelId){
