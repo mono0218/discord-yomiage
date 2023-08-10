@@ -18,10 +18,8 @@ client.once('ready', async() => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
-client.on(Event.interactionCreate, async (interaction) => {
+client.on("interactionCreate", async (interaction) => {
     CommandReply(interaction)
 });
-
-client.on('error', console.warn);
 
 client.login(process.env.TOKEN);

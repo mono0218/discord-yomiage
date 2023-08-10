@@ -3,8 +3,12 @@ import azure_yomiage from "./yomiage.js"
 import { getVoiceConnection} from "@discordjs/voice";
 import {player,client} from "../index.js"
 import {spam,spam_stop}from "./spam.js"
+import {DisconnectEmbed,VCError1,VCError2,SkipEmbed,PingEmbed} from "./Embed.js"
 
-let lockflag = 0
+
+export let lockflag = false
+
+export function modifyLock( value ) { lockflag = value; }
 
 /**
  * slashコマンド一覧入手
@@ -79,13 +83,13 @@ export async function CommandReply(interaction){
         return;
     }
     if (interaction.commandName === 'ping') {
-        await interaction.reply('Pong！');
+        await interaction.reply({ embeds: [PingEmbed ]});
     }
 
     if(interaction.commandName === 'join'){
 
         if(lockflag === true){
-            interaction.reply('すでに接続しています');
+            interaction.reply({ embeds: [VCError1 ]});
         }else{
             connect(interaction,client,player)
             lockflag = true
@@ -95,12 +99,12 @@ export async function CommandReply(interaction){
     if(interaction.commandName === 'bye'){
         const connection = getVoiceConnection(interaction.guildId);
         if(connection === undefined){
-            interaction.reply('vcに接続していません');
+            interaction.reply({ embeds: [VCError2 ]});
         }else{
             connection.disconnect();
             console.log(interaction.guildId+"のVCから退出しました")
             lockflag = false
-            interaction.reply('bye');
+            interaction.reply({ embeds: [DisconnectEmbed ]});
         }
     }
 
@@ -130,6 +134,7 @@ export async function CommandReply(interaction){
 
     if(interaction.commandName === 'skip'){
         player.stop();
-        await interaction.reply("スキップしました")
+        await interaction.reply({ embeds: [SkipEmbed ]})
     }
 }
+

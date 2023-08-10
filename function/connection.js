@@ -1,6 +1,9 @@
 import {joinVoiceChannel,getVoiceConnection, VoiceConnectionStatus,} from "@discordjs/voice"
+import { EmbedBuilder } from 'discord.js';
 import azure_yomiage from "./yomiage.js"
 import {player,client} from "../index.js"
+import { modifyLock } from "./commands.js";
+import { ConnectEmbed,VCError3 } from "./Embed.js";
 
 /**
  * VCに接続
@@ -13,18 +16,19 @@ export default async function connect(interaction){
     const member = await guild.members.fetch(interaction.member.id)
     const member_vc = member.voice.channel
 
+
     if(!member_vc){
-        await interaction.reply({content: "vcが見つかりません"})
+        await interaction.reply({ embeds: [VCError3 ]})
         return
     }
 
     if(!member_vc.joinable){
-        await interaction.reply({content: "vcに接続できませんでした"})
+        await interaction.reply({ embeds: [VCError3 ]})
         return
     }
 
     if(!member_vc.speakable){
-        await interaction.reply({content:"権限がありません"})
+        await interaction.reply({ embeds: [VCError3 ]})
         return
     }
 
@@ -40,8 +44,7 @@ export default async function connect(interaction){
     });
 
     connection.subscribe(player);
-
-    await interaction.reply({content: "接続しました"})
+    await interaction.reply({ embeds: [ConnectEmbed ]})
     
     console.log(interaction.guildId+"のVCに入室しました。")
 
@@ -63,9 +66,11 @@ export default async function connect(interaction){
 
     connection.once(VoiceConnectionStatus.Disconnected, ()=>{
         client.off('messageCreate', func);
+        modifyLock(false)
     });
 
     connection.once(VoiceConnectionStatus.Destroyed, ()=>{
         client.off('messageCreate', func);
+        modifyLock(false)
     });
 }
