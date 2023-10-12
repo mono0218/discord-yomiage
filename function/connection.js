@@ -1,9 +1,9 @@
 import {joinVoiceChannel,getVoiceConnection, VoiceConnectionStatus,} from "@discordjs/voice"
 import { EmbedBuilder } from 'discord.js';
 import azure_yomiage from "./yomiage.js"
-import {player,client} from "../index.js"
-import { modifyLock } from "./commands.js";
+import {client} from "../index.js"
 import { ConnectEmbed,VCError3 } from "./Embed.js";
+import { createAudioPlayer } from "@discordjs/voice";
 
 /**
  * VCに接続
@@ -43,6 +43,8 @@ export default async function connect(interaction){
         selfDeaf: true,
     });
 
+    const player = createAudioPlayer();
+
     connection.subscribe(player);
     await interaction.reply({ embeds: [ConnectEmbed ]})
     
@@ -54,7 +56,7 @@ export default async function connect(interaction){
                 if(getVoiceConnection(interaction.guildId)=== undefined){
                     return
                 }else{
-                    azure_yomiage(msg.content)  
+                    azure_yomiage(msg.content,player)  
                 }
             } catch(e) {
                 console.log(e);
@@ -66,11 +68,9 @@ export default async function connect(interaction){
 
     connection.once(VoiceConnectionStatus.Disconnected, ()=>{
         client.off('messageCreate', func);
-        modifyLock(false)
     });
 
     connection.once(VoiceConnectionStatus.Destroyed, ()=>{
         client.off('messageCreate', func);
-        modifyLock(false)
     });
 }

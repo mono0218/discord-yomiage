@@ -1,14 +1,9 @@
 import connect from "./connection.js";
 import azure_yomiage from "./yomiage.js"
 import { getVoiceConnection} from "@discordjs/voice";
-import {player,client} from "../index.js"
+import {client} from "../index.js"
 import {spam,spam_stop}from "./spam.js"
 import {DisconnectEmbed,VCError1,VCError2,SkipEmbed,PingEmbed} from "./Embed.js"
-
-
-export let lockflag = false
-
-export function modifyLock( value ) { lockflag = value; }
 
 /**
  * slashコマンド一覧入手
@@ -87,12 +82,11 @@ export async function CommandReply(interaction){
     }
 
     if(interaction.commandName === 'join'){
-
-        if(lockflag === true){
+        const connection = getVoiceConnection(interaction.guildId);
+        if(connection != undefined){
             interaction.reply({ embeds: [VCError1 ]});
         }else{
-            connect(interaction,client,player)
-            lockflag = true
+            connect(interaction,client)
         }
     }
     
@@ -101,9 +95,8 @@ export async function CommandReply(interaction){
         if(connection === undefined){
             interaction.reply({ embeds: [VCError2 ]});
         }else{
-            connection.disconnect();
+            connection.destroy()
             console.log(interaction.guildId+"のVCから退出しました")
-            lockflag = false
             interaction.reply({ embeds: [DisconnectEmbed ]});
         }
     }

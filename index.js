@@ -11,10 +11,11 @@ export const client = new Client({ intents: [
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildVoiceStates,] });
 
-export const player = createAudioPlayer();
 
 client.once('ready', async() => {
     await client.application.commands.set(commands(), process.env.GuildID);
+    await client.application.commands.set(commands(),process.env.GuildID2);
+
     console.log(`Logged in as ${client.user.tag}!`);
 });
 

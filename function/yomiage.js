@@ -2,7 +2,6 @@ import { AudioPlayerStatus, createAudioResource, StreamType } from "@discordjs/v
 import axios from 'axios';
 import SpeechSDK from 'microsoft-cognitiveservices-speech-sdk';
 import { PassThrough } from 'stream';
-import {player} from "../index.js"
 
 /**
  * voicevoxの読み上げ
@@ -20,10 +19,10 @@ export async function voicevox_yomiage(msg) {
  * @params msg
  * @returns player
  */
-export async function azure_yomiage(msg) {
+export async function azure_yomiage(msg,player) {
     msg = await msg_text(msg)
     const stream = await speakTextUsingAzure(msg);
-    await AudioPlay(stream)
+    await AudioPlay(stream,player)
 }
 
 /**
@@ -131,7 +130,7 @@ async function waitUntilPlayFinish(player) {
  * @params stream
  * @params player
  */
-async function AudioPlay(stream){
+async function AudioPlay(stream,player){
     let resource = createAudioResource(stream, { inputType: StreamType.Arbitrary, inlineVolume: true });
     await waitUntilPlayFinish(player);
     player.play(resource);
