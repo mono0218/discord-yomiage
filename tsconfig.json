@@ -13,6 +13,8 @@
 		"noUnusedParameters": true,
 		"strict": true,
 
+		"skipLibCheck": true,
+
 		// Modules
 		"allowArbitraryExtensions": false,
 		"allowImportingTsExtensions": false,

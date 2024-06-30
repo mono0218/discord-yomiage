@@ -1,4 +1,4 @@
-import {joinVoiceChannel,getVoiceConnection, VoiceConnectionStatus,} from "@discordjs/voice"
+import {joinVoiceChannel,getVoiceConnection, VoiceConnectionStatus, VoiceConnection} from "@discordjs/voice"
 import {CacheType, ChatInputCommandInteraction, Client, Guild, Message} from 'discord.js';
 import azure_yomiage from "./yomiage.js"
 import { ConnectEmbed,VCError3 } from "./Embed.js";
@@ -28,7 +28,7 @@ export default async function connect(interaction: ChatInputCommandInteraction<C
     const voice_channel_id = member_vc.id;
     const guild_id = guild.id;
 
-    const connection = joinVoiceChannel({
+    const connection:VoiceConnection = joinVoiceChannel({
         guildId: guild_id,
         channelId: voice_channel_id,
         adapterCreator: guild.voiceAdapterCreator,
@@ -63,11 +63,11 @@ export default async function connect(interaction: ChatInputCommandInteraction<C
     }
     
     client.on('messageCreate', func);
-
+    //@ts-ignore
     connection.once(VoiceConnectionStatus.Disconnected, ()=>{
         client.off('messageCreate', func);
     });
-
+    //@ts-ignore
     connection.once(VoiceConnectionStatus.Destroyed, ()=>{
         client.off('messageCreate', func);
     });

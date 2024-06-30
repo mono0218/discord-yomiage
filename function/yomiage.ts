@@ -71,11 +71,12 @@ async function speakTextUsingAzure(msg:string) {
 /**
  * 読み上げが終わるまで待機する
  */
-async function waitUntilPlayFinish(player: { state: { status: AudioPlayerStatus; }; once: (arg0: AudioPlayerStatus, arg1: () => void) => void; }) {
+async function waitUntilPlayFinish(player: AudioPlayer) {
     return new Promise<void>((resolve, _) => {
         if (player.state.status == AudioPlayerStatus.Idle) {
             return resolve();
         }
+        //@ts-ignore
         player.once(AudioPlayerStatus.Idle, () => {
             resolve();
         });
