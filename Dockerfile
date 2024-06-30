@@ -5,4 +5,6 @@ COPY ./ /usr/app
 WORKDIR /usr/app
 RUN npm install
 
-CMD ["node","index.ts"]
+RUN npm run comnpile
+
+CMD ["node","dist/index.js"]
