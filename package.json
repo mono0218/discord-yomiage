@@ -23,7 +23,6 @@
     "microsoft-cognitiveservices-speech-sdk": "^1.27.0",
     "openai": "^3.2.1",
     "opusscript": "^0.0.8",
-    "tsc": "^2.0.4",
     "tweetnacl": "^1.0.3"
   },
   "engines": {
