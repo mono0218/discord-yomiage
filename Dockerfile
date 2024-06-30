@@ -5,4 +5,4 @@ COPY ./ /usr/app
 WORKDIR /usr/app
 RUN npm install
 
-CMD ["node","index.js"]
+CMD ["node","index.ts"]

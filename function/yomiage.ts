@@ -1,59 +1,16 @@
-import { AudioPlayerStatus, createAudioResource, StreamType } from "@discordjs/voice";
-import axios from 'axios';
+import { AudioPlayer, AudioPlayerStatus, createAudioResource, StreamType } from "@discordjs/voice";
 import SpeechSDK from 'microsoft-cognitiveservices-speech-sdk';
-import { PassThrough } from 'stream';
-
-/**
- * voicevoxの読み上げ
- * @params msg
- * @returns player
- */
-export async function voicevox_yomiage(msg) {
-    msg = await msg_text(msg)
-    const stream = await speakTextUsingVoicevox(msg);
-    await AudioPlay(stream)
-}
+import { PassThrough, Readable } from 'stream';
 
 /**
  * azureの読み上げ
  * @params msg
  * @returns player
  */
-export async function azure_yomiage(msg,player) {
+export async function azure_yomiage(msg: string, player: AudioPlayer) {
     msg = await msg_text(msg)
     const stream = await speakTextUsingAzure(msg);
     await AudioPlay(stream,player)
-}
-
-/**
- * voicevoxを使ったオーディオデータ取得
- * @params String
- * @returns AudioData
- */
-async function speakTextUsingVoicevox(msg) {
-    const rpc = axios.create({ baseURL: process.env.URL, proxy: false });
-    const audio_query = await rpc.post('audio_query', {}, {
-        params: {
-            text: msg,
-            speaker: 1,
-        }
-    });
-    console.log("[ " + msg + " ]" + "===> VOICEVOX API");
-    let requestBody = {
-        ...audio_query.data,
-        speedScale: 1.0,
-    };
-    const synthesis = await rpc.post("synthesis", requestBody, {
-        responseType: 'stream',
-        headers: {
-            "Accept": "audio/wav",
-            "Content-Type": "application/json"
-        },
-        params: {
-            speaker: 1,
-        }
-    });
-    return synthesis.data;
 }
 
 /**
@@ -61,7 +18,7 @@ async function speakTextUsingVoicevox(msg) {
  * 
  * @returns msg
  */
-async function msg_text(msg){
+async function msg_text(msg:string){
     if(msg.indexOf('<') != -1){
         console.log(msg)
         msg = msg.replace(/[0-9０-９]/g, ' ').replace('<',' ').replace(':',' ').replace('>',' ')
@@ -85,7 +42,7 @@ async function msg_text(msg){
 async function AzureSettings(){
     const keyText = process.env.AZURE_API;
     const regionText = "japaneast";
-    const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(keyText, regionText);
+    const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(keyText || "", regionText);
     speechConfig.speechSynthesisLanguage = "ja-JP";
     speechConfig.speechSynthesisVoiceName = "ja-JP-AoiNeural";
     return speechConfig
@@ -96,9 +53,9 @@ async function AzureSettings(){
  * @params String
  * @returns AudioData
  */
-async function speakTextUsingAzure(msg) {
+async function speakTextUsingAzure(msg:string) {
     const synthesizer = new SpeechSDK.SpeechSynthesizer(await AzureSettings());
-    let result;
+    let result: any;
     try {
         result = await new Promise((resolve, reject) => {
             console.log("[ " + msg + " ]" + "===> AZURE API");
@@ -114,8 +71,8 @@ async function speakTextUsingAzure(msg) {
 /**
  * 読み上げが終わるまで待機する
  */
-async function waitUntilPlayFinish(player) {
-    return new Promise((resolve, _) => {
+async function waitUntilPlayFinish(player: { state: { status: AudioPlayerStatus; }; once: (arg0: AudioPlayerStatus, arg1: () => void) => void; }) {
+    return new Promise<void>((resolve, _) => {
         if (player.state.status == AudioPlayerStatus.Idle) {
             return resolve();
         }
@@ -130,8 +87,8 @@ async function waitUntilPlayFinish(player) {
  * @params stream
  * @params player
  */
-async function AudioPlay(stream,player){
-    let resource = createAudioResource(stream, { inputType: StreamType.Arbitrary, inlineVolume: true });
+async function AudioPlay(stream: string | Readable,player: AudioPlayer){
+    let resource = createAudioResource(stream, {metadata: undefined, inputType: StreamType.Arbitrary, inlineVolume: true });
     await waitUntilPlayFinish(player);
     player.play(resource);
 }

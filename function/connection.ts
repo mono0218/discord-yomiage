@@ -1,7 +1,6 @@
 import {joinVoiceChannel,getVoiceConnection, VoiceConnectionStatus,} from "@discordjs/voice"
-import { EmbedBuilder } from 'discord.js';
+import {CacheType, ChatInputCommandInteraction, Client, Guild, Message} from 'discord.js';
 import azure_yomiage from "./yomiage.js"
-import {client} from "../index.js"
 import { ConnectEmbed,VCError3 } from "./Embed.js";
 import { createAudioPlayer } from "@discordjs/voice";
 
@@ -11,11 +10,10 @@ import { createAudioPlayer } from "@discordjs/voice";
  * @params client
  * @params player
  */
-export default async function connect(interaction){
-    const guild = interaction.guild;
-    const member = await guild.members.fetch(interaction.member.id)
+export default async function connect(interaction: ChatInputCommandInteraction<CacheType>, client: Client<boolean>){
+    const guild = interaction.guild as Guild;
+    const member = await guild.members.fetch(interaction.member?.user.id as string)
     const member_vc = member.voice.channel
-
 
     if(!member_vc){
         await interaction.reply({ embeds: [VCError3 ]})
@@ -26,12 +24,7 @@ export default async function connect(interaction){
         await interaction.reply({ embeds: [VCError3 ]})
         return
     }
-
-    if(!member_vc.speakable){
-        await interaction.reply({ embeds: [VCError3 ]})
-        return
-    }
-
+    
     const voice_channel_id = member_vc.id;
     const guild_id = guild.id;
 
@@ -50,20 +43,25 @@ export default async function connect(interaction){
     
     console.log(interaction.guildId+"のVCに入室しました。")
 
-    const func = async msg => {
+    const func = async (message: Message<boolean>) => {
+        const msg = {
+            guild: message.guild?.id ?? null,
+            channelId: message.channelId,
+            content: message.content
+        };
         if (msg.guild == interaction.guildId && msg.channelId == interaction.channelId){
             try {
-                if(getVoiceConnection(interaction.guildId)=== undefined){
+                if(getVoiceConnection(interaction.guildId ?? '') === undefined){
                     return
                 }else{
-                    azure_yomiage(msg.content,player)  
+                    await azure_yomiage(msg.content, player)
                 }
             } catch(e) {
                 console.log(e);
             }
         }
     }
-
+    
     client.on('messageCreate', func);
 
     connection.once(VoiceConnectionStatus.Disconnected, ()=>{
@@ -73,4 +71,6 @@ export default async function connect(interaction){
     connection.once(VoiceConnectionStatus.Destroyed, ()=>{
         client.off('messageCreate', func);
     });
+
+    return player
 }

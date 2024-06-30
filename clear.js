@@ -11,7 +11,7 @@ export const client = new Client({ intents: [
 
 
 client.once('ready', async() => {
-    await client.application.commands.set([]);
+    await client.application.commands.set([],"1251571757748326431");
     console.log("処理が完了しました")
 });
 
