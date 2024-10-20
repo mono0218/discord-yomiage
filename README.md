@@ -1,4 +1,15 @@
 # discord-yomiage
-## azure-ttsを使用した読み上げボット
 
-環境変数を設定してnode index.jsで起動
+To install dependencies:
+
+```bash
+bun install
+```
+
+To run:
+
+```bash
+bun run index.ts
+```
+
+This project was created using `bun init` in bun v1.1.29. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.

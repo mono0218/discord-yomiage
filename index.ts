@@ -1,40 +1,41 @@
-import { CacheType, ChatInputCommandInteraction, Client, GatewayIntentBits, Interaction } from "discord.js";
-import dotenv from "dotenv"
-dotenv.config();
+import {Client, Events, GatewayIntentBits} from 'discord.js';
+import { VoiceControllerManager } from "./src/voice";
 
-import {commands} from "./function/commandRegister.js"
-import {CommandInteractionClass} from "./function/commands.js";
-
-const client:Client = new Client({ intents: [
+// create a new Client instance
+const client:Client = new Client({
+    intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildMembers,
-        GatewayIntentBits.GuildVoiceStates,] });
-
-
-client.once('ready', async() => {
-    if (client.application && process.env.GuildID) {
-        await client.application.commands.set(commands(), process.env.GuildID);
-    }else{
-        throw new Error("env not ")
-    }
-
-    console.log(`Logged in as ${client.user?.tag}!`);
+        GatewayIntentBits.GuildVoiceStates,
+    ]
 });
 
-let guildList:{id:string,interactionClass:CommandInteractionClass}[] = []
+const voiceManager = new VoiceControllerManager()
 
-client.on("interactionCreate", async (interaction: Interaction<CacheType>) => {
+// listen for the client to be ready
+client.once(Events.ClientReady, async (c) => {
+    console.log(`Ready! Logged in as ${c.user.tag}`);
+});
+
+client.on(Events.InteractionCreate, async (interaction) => {
     if (!interaction.isCommand()) return;
-    let guild = guildList.filter(client => client.id === interaction.guildId)[0]
+    const voiceClass = voiceManager.getVoiceController(client,interaction.guildId!)
 
-    if (!guild){
-        guild = {id:interaction.guildId as string,interactionClass:new CommandInteractionClass(client)}
-        guildList.push(guild)
+    switch (interaction.commandName) {
+        case 'ping':
+            await interaction.reply('Pong!');
+            break;
+        case 'join':
+            await voiceClass.join(interaction);
+            break;
+        case 'bye':
+            await voiceClass.bye(interaction);
+            voiceManager.removeVoiceController(interaction.guildId!)
+            break;
     }
+})
 
-    await guild.interactionClass.switchReply(interaction as ChatInputCommandInteraction<CacheType>)
-});
-
-client.login(process.env.TOKEN).then();
+// login with the token from .env.local
+client.login(process.env.DISCORD_TOKEN).then();
