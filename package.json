@@ -3,6 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.5.9",
     "@types/bun": "latest"
   },
   "peerDependencies": {
@@ -13,7 +14,7 @@
     "axios": "^1.7.7",
     "discord.js": "^14.16.3",
     "ffmpeg": "^0.0.4",
-    "ffmpeg-static": "^5.2.0",
+    "ffmpeg-static": "git+https://github.com/eugeneware/ffmpeg-static/",
     "tweetnacl": "^1.0.3"
   }
 }
